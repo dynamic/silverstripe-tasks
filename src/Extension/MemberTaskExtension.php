@@ -8,6 +8,7 @@ use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordViewer;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
+use SilverStripe\ORM\DataList;
 use SilverStripe\Security\Member;
 
 /**
@@ -27,7 +28,7 @@ class MemberTaskExtension extends Extension
     /**
      * Get all tasks assigned to this member
      */
-    public function AssignedTasks()
+    public function AssignedTasks(): DataList
     {
         return Task::get()->filter('AssignedToID', $this->owner->ID);
     }
