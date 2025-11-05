@@ -57,7 +57,7 @@ class NotificationService
             ]);
         
         $result = $email->send();
-        return $result !== null ? (bool)$result : true;
+        return $result !== null ? (bool)$result : false;
     }
     
     /**
@@ -115,12 +115,15 @@ class NotificationService
                         'Assignee' => $creator,
                         'TaskLink' => self::getTaskEditLink($task),
                     ]);
-                $creatorEmail->send();
+                $creatorResult = $creatorEmail->send();
+                if ($creatorResult === false || $creatorResult === null) {
+                    return false;
+                }
             }
         }
         
         $result = $email->send();
-        return $result !== null ? (bool)$result : true;
+        return $result !== null ? (bool)$result : false;
     }
     
     /**
@@ -179,7 +182,7 @@ class NotificationService
                 ]);
             
             $result = $email->send();
-            if ($result !== null ? (bool)$result : true) {
+            if ($result !== null ? (bool)$result : false) {
                 $sent = true;
             }
         }

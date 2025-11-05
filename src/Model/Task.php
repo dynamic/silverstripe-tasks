@@ -269,7 +269,7 @@ class Task extends DataObject
 
         // Send notification if task was assigned or reassigned
         $wasAssignmentChanged = (isset($this->wasNew) && $this->wasNew) || 
-                                (isset($this->originalAssignedToID) && $this->originalAssignedToID != $this->AssignedToID);
+                                (isset($this->originalAssignedToID) && $this->originalAssignedToID !== $this->AssignedToID);
         
         if ($wasAssignmentChanged && $this->AssignedToID) {
             $previousAssignee = null;
