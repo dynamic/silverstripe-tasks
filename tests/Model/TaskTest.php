@@ -167,7 +167,7 @@ class TaskTest extends SapphireTest
 
         $this->assertEquals(Member::class, $task->RelatedClass);
         $this->assertEquals($member->ID, $task->RelatedID);
-        
+
         $related = $task->Related();
         $this->assertNotNull($related);
         $this->assertEquals($member->ID, $related->ID);
@@ -232,9 +232,9 @@ class TaskTest extends SapphireTest
     {
         $task = Task::create();
         $task->Status = 'NotStarted';
-        
+
         $result = $task->validate();
-        
+
         $this->assertFalse($result->isValid(), 'Task without title should not be valid');
     }
 

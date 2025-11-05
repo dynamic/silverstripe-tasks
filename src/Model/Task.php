@@ -276,7 +276,7 @@ class Task extends DataObject
             // Existing task with changed assignment
             $wasAssignmentChanged = true;
         }
-        
+
         if ($wasAssignmentChanged && $this->AssignedToID) {
             $previousAssignee = null;
             if (isset($this->originalAssignedToID)) {

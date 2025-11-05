@@ -12,7 +12,7 @@ use SilverStripe\Forms\GridField\GridFieldDetailForm;
 
 /**
  * Extension to add Task management to any DataObject
- * 
+ *
  * Usage: Apply this extension to any DataObject in _config/mysite.yml:
  * ```yaml
  * App\Model\Site:
@@ -48,7 +48,7 @@ class TaskExtension extends Extension
     {
         if ($this->owner->exists()) {
             $config = GridFieldConfig_RecordEditor::create();
-            
+
             // Customize the add new button to pre-set the relationship
             $addButton = $config->getComponentByType(GridFieldAddNewButton::class);
             if ($addButton) {
@@ -108,7 +108,7 @@ class TaskDetailForm_ItemRequest extends \SilverStripe\Forms\GridField\GridField
     public function doSave($data, $form)
     {
         $record = $this->record;
-        
+
         // Set polymorphic relationship for new records
         if (!$record->exists() && $this->gridField) {
             $owner = $this->gridField->getForm()->getRecord();
@@ -117,7 +117,7 @@ class TaskDetailForm_ItemRequest extends \SilverStripe\Forms\GridField\GridField
                 $record->RelatedID = $owner->ID;
             }
         }
-        
+
         return parent::doSave($data, $form);
     }
 }

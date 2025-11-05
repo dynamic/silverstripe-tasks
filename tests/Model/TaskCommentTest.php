@@ -108,7 +108,7 @@ class TaskCommentTest extends SapphireTest
         $author->write();
 
         $longComment = str_repeat('This is a very long comment. ', 10);
-        
+
         $comment = TaskComment::create();
         $comment->Comment = $longComment;
         $comment->TaskID = $task->ID;
@@ -116,7 +116,7 @@ class TaskCommentTest extends SapphireTest
         $comment->write();
 
         $summary = $comment->getCommentSummary();
-        
+
         $this->assertLessThanOrEqual(103, strlen($summary), 'Summary should be 100 chars + "..."');
         $this->assertStringEndsWith('...', $summary, 'Long comment summary should end with "..."');
     }
@@ -135,7 +135,7 @@ class TaskCommentTest extends SapphireTest
         $author->write();
 
         $shortComment = 'Short comment';
-        
+
         $comment = TaskComment::create();
         $comment->Comment = $shortComment;
         $comment->TaskID = $task->ID;
@@ -143,7 +143,7 @@ class TaskCommentTest extends SapphireTest
         $comment->write();
 
         $summary = $comment->getCommentSummary();
-        
+
         $this->assertEquals($shortComment, $summary);
         $this->assertStringEndsNotWith('...', $summary);
     }
@@ -289,7 +289,7 @@ class TaskCommentTest extends SapphireTest
         $comment->write();
 
         $summary = $comment->getCommentSummary();
-        
+
         $this->assertStringNotContainsString('<p>', $summary);
         $this->assertStringNotContainsString('<strong>', $summary);
         $this->assertStringNotContainsString('</p>', $summary);

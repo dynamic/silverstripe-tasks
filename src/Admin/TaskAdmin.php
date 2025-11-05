@@ -30,7 +30,7 @@ class TaskAdmin extends ModelAdmin
         // If viewing tasks, add custom filters
         if ($this->modelClass === Task::class) {
             $currentUser = Security::getCurrentUser();
-            
+
             // Check if "My Tasks" filter is active
             $params = $this->getRequest()->requestVar('filter');
             if (isset($params[Task::class]['AssignedToID']) && $params[Task::class]['AssignedToID'] === 'me') {
