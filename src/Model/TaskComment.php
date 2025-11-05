@@ -2,6 +2,7 @@
 
 namespace Dynamic\Tasks\Model;
 
+use Dynamic\Tasks\Service\NotificationService;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -76,6 +77,16 @@ class TaskComment extends DataObject
             if ($currentUser) {
                 $this->AuthorID = $currentUser->ID;
             }
+        }
+    }
+
+    protected function onAfterWrite()
+    {
+        parent::onAfterWrite();
+
+        // Send notification when new comment is created
+        if (!$this->isChanged('Comment', DataObject::CHANGE_VALUE)) {
+            NotificationService::sendCommentAddedNotification($this);
         }
     }
 

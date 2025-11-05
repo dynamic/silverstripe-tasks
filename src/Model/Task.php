@@ -2,6 +2,7 @@
 
 namespace Dynamic\Tasks\Model;
 
+use Dynamic\Tasks\Service\NotificationService;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -34,6 +35,16 @@ class Task extends DataObject
     private static $table_name = 'Task';
 
     private static $singular_name = 'Task';
+
+    /**
+     * Track original assignee for notification logic
+     */
+    protected $originalAssignedToID;
+
+    /**
+     * Track original status for notification logic
+     */
+    protected $originalStatus;
 
     private static $plural_name = 'Tasks';
 
@@ -218,6 +229,14 @@ class Task extends DataObject
     {
         parent::onBeforeWrite();
 
+        // Capture original values for change detection
+        if ($this->exists() && $this->isChanged('AssignedToID')) {
+            $this->originalAssignedToID = $this->getField('AssignedToID');
+        }
+        if ($this->exists() && $this->isChanged('Status')) {
+            $this->originalStatus = $this->getField('Status');
+        }
+
         // Set CreatedBy on first write
         if (!$this->exists() && !$this->CreatedByID) {
             $currentUser = Security::getCurrentUser();
@@ -231,6 +250,25 @@ class Task extends DataObject
             $this->CompletedAt = date('Y-m-d H:i:s');
         } elseif ($this->Status !== 'Complete') {
             $this->CompletedAt = null;
+        }
+    }
+
+    protected function onAfterWrite()
+    {
+        parent::onAfterWrite();
+
+        // Send notification if task was assigned or reassigned
+        if ($this->isChanged('AssignedToID') || !$this->exists()) {
+            $previousAssignee = null;
+            if (isset($this->originalAssignedToID)) {
+                $previousAssignee = Member::get()->byID($this->originalAssignedToID);
+            }
+            NotificationService::sendTaskAssignedNotification($this, $previousAssignee);
+        }
+
+        // Send notification if status changed
+        if (isset($this->originalStatus) && $this->originalStatus !== $this->Status) {
+            NotificationService::sendStatusChangedNotification($this, $this->originalStatus);
         }
     }
 
