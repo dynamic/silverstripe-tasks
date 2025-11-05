@@ -1,0 +1,50 @@
+SilverStripe\Security\Member:
+  admin:
+    FirstName: 'Admin'
+    Surname: 'User'
+    Email: 'admin@example.com'
+  user1:
+    FirstName: 'John'
+    Surname: 'Doe'
+    Email: 'john.doe@example.com'
+  user2:
+    FirstName: 'Jane'
+    Surname: 'Smith'
+    Email: 'jane.smith@example.com'
+
+Dynamic\Tasks\Model\Task:
+  task1:
+    Title: 'First Test Task'
+    Description: 'This is the first test task'
+    Status: 'NotStarted'
+    Priority: 'Normal'
+    AssignedTo: =>SilverStripe\Security\Member.user1
+    CreatedBy: =>SilverStripe\Security\Member.admin
+  task2:
+    Title: 'Second Test Task'
+    Description: 'This is the second test task'
+    Status: 'InProgress'
+    Priority: 'High'
+    AssignedTo: =>SilverStripe\Security\Member.user2
+    CreatedBy: =>SilverStripe\Security\Member.admin
+  task3:
+    Title: 'Completed Test Task'
+    Description: 'This task is already completed'
+    Status: 'Complete'
+    Priority: 'Low'
+    AssignedTo: =>SilverStripe\Security\Member.user1
+    CreatedBy: =>SilverStripe\Security\Member.user2
+
+Dynamic\Tasks\Model\TaskComment:
+  comment1:
+    Comment: 'This is the first comment'
+    Task: =>Dynamic\Tasks\Model\Task.task1
+    Author: =>SilverStripe\Security\Member.user1
+  comment2:
+    Comment: 'This is a follow-up comment'
+    Task: =>Dynamic\Tasks\Model\Task.task1
+    Author: =>SilverStripe\Security\Member.user2
+  comment3:
+    Comment: 'Comment on second task'
+    Task: =>Dynamic\Tasks\Model\Task.task2
+    Author: =>SilverStripe\Security\Member.admin

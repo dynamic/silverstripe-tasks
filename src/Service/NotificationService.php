@@ -24,27 +24,27 @@ class NotificationService
     public static function sendTaskAssignedNotification(Task $task, ?Member $previousAssignee = null): bool
     {
         $assignee = $task->AssignedTo();
-        
+
         // Don't send if no assignee or self-assigned
         if (!$assignee || !$assignee->exists()) {
             return false;
         }
-        
+
         // Don't send if assigned to the same person
         if ($previousAssignee && $previousAssignee->ID === $assignee->ID) {
             return false;
         }
-        
+
         // Don't send if the person who created/updated the task is the assignee
         $currentUser = Security::getCurrentUser();
         if ($currentUser && $currentUser->ID === $assignee->ID) {
             return false;
         }
-        
+
         if (!$assignee->Email) {
             return false;
         }
-        
+
         $email = Email::create()
             ->setTo($assignee->Email)
             ->setSubject(sprintf('Task Assigned: %s', $task->Title))
@@ -55,11 +55,11 @@ class NotificationService
                 'AssignedBy' => $currentUser,
                 'TaskLink' => self::getTaskEditLink($task),
             ]);
-        
+
         $result = $email->send();
         return $result !== null ? (bool)$result : false;
     }
-    
+
     /**
      * Send notification when a comment is added to a task
      *
@@ -72,19 +72,19 @@ class NotificationService
         if (!$task || !$task->exists()) {
             return false;
         }
-        
+
         $author = $comment->Author();
         $assignee = $task->AssignedTo();
-        
+
         // Don't send if no assignee or if assignee is the comment author
         if (!$assignee || !$assignee->exists() || !$assignee->Email) {
             return false;
         }
-        
+
         if ($author && $author->ID === $assignee->ID) {
             return false;
         }
-        
+
         $email = Email::create()
             ->setTo($assignee->Email)
             ->setSubject(sprintf('New Comment on Task: %s', $task->Title))
@@ -96,13 +96,13 @@ class NotificationService
                 'Recipient' => $assignee,
                 'TaskLink' => self::getTaskEditLink($task),
             ]);
-        
+
         // Also notify the task creator if they're not the author or assignee
         $creator = $task->CreatedBy();
         if ($creator && $creator->exists() && $creator->Email) {
             $isCreatorNotified = $creator->ID === $assignee->ID;
             $isCreatorAuthor = $author && $creator->ID === $author->ID;
-            
+
             if (!$isCreatorNotified && !$isCreatorAuthor) {
                 $creatorEmail = Email::create()
                     ->setTo($creator->Email)
@@ -121,11 +121,11 @@ class NotificationService
                 }
             }
         }
-        
+
         $result = $email->send();
         return $result !== null ? (bool)$result : false;
     }
-    
+
     /**
      * Send notification when task status changes
      *
@@ -139,10 +139,10 @@ class NotificationService
         if ($task->Status === $previousStatus) {
             return false;
         }
-        
+
         $recipients = [];
         $currentUser = Security::getCurrentUser();
-        
+
         // Notify assignee (if not the one making the change)
         $assignee = $task->AssignedTo();
         if ($assignee && $assignee->exists() && $assignee->Email) {
@@ -150,22 +150,22 @@ class NotificationService
                 $recipients[$assignee->ID] = $assignee;
             }
         }
-        
+
         // Notify creator (if not the assignee or the one making the change)
         $creator = $task->CreatedBy();
         if ($creator && $creator->exists() && $creator->Email) {
             $isAlreadyNotified = isset($recipients[$creator->ID]);
             $isCurrentUser = $currentUser && $currentUser->ID === $creator->ID;
-            
+
             if (!$isAlreadyNotified && !$isCurrentUser) {
                 $recipients[$creator->ID] = $creator;
             }
         }
-        
+
         if (empty($recipients)) {
             return false;
         }
-        
+
         $sent = false;
         foreach ($recipients as $recipient) {
             $email = Email::create()
@@ -180,16 +180,16 @@ class NotificationService
                     'NewStatus' => $task->Status,
                     'TaskLink' => self::getTaskEditLink($task),
                 ]);
-            
+
             $result = $email->send();
             if ($result !== null ? (bool)$result : false) {
                 $sent = true;
             }
         }
-        
+
         return $sent;
     }
-    
+
     /**
      * Get the CMS edit link for a task
      *
