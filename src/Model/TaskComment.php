@@ -2,6 +2,7 @@
 
 namespace Dynamic\Tasks\Model;
 
+use Dynamic\Tasks\Service\NotificationService;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -23,6 +24,11 @@ class TaskComment extends DataObject
     private static $singular_name = 'Comment';
 
     private static $plural_name = 'Comments';
+
+    /**
+     * Track if this is a new comment for notification logic
+     */
+    protected $wasNew = false;
 
     private static $db = [
         'Comment' => 'Text',
@@ -70,11 +76,29 @@ class TaskComment extends DataObject
     {
         parent::onBeforeWrite();
 
+        // Track if this is a new comment
+        $this->wasNew = !$this->isInDB();
+
         // Set Author on first write
         if (!$this->exists() && !$this->AuthorID) {
             $currentUser = Security::getCurrentUser();
             if ($currentUser) {
                 $this->AuthorID = $currentUser->ID;
+            }
+        }
+    }
+
+    protected function onAfterWrite()
+    {
+        parent::onAfterWrite();
+
+        // Send notification only when new comment is created (not on edits)
+        if ($this->wasNew) {
+            try {
+                NotificationService::sendCommentAddedNotification($this);
+            } catch (\Exception $e) {
+                // Log error but don't fail the save
+                user_error('Failed to send comment notification: ' . $e->getMessage(), E_USER_WARNING);
             }
         }
     }

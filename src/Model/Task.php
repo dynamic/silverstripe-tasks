@@ -2,6 +2,7 @@
 
 namespace Dynamic\Tasks\Model;
 
+use Dynamic\Tasks\Service\NotificationService;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
@@ -34,6 +35,21 @@ class Task extends DataObject
     private static $table_name = 'Task';
 
     private static $singular_name = 'Task';
+
+    /**
+     * Track original assignee for notification logic
+     */
+    protected $originalAssignedToID;
+
+    /**
+     * Track original status for notification logic
+     */
+    protected $originalStatus;
+
+    /**
+     * Track if this is a new record for notification logic
+     */
+    protected $wasNew = false;
 
     private static $plural_name = 'Tasks';
 
@@ -218,6 +234,19 @@ class Task extends DataObject
     {
         parent::onBeforeWrite();
 
+        // Track if this is a new record
+        $this->wasNew = !$this->isInDB();
+
+        // Capture original values for change detection
+        if ($this->exists() && $this->isChanged('AssignedToID')) {
+            $original = $this->getChangedFields(false, DataObject::CHANGE_VALUE);
+            $this->originalAssignedToID = $original['AssignedToID']['before'] ?? null;
+        }
+        if ($this->exists() && $this->isChanged('Status')) {
+            $original = $this->getChangedFields(false, DataObject::CHANGE_VALUE);
+            $this->originalStatus = $original['Status']['before'] ?? null;
+        }
+
         // Set CreatedBy on first write
         if (!$this->exists() && !$this->CreatedByID) {
             $currentUser = Security::getCurrentUser();
@@ -231,6 +260,42 @@ class Task extends DataObject
             $this->CompletedAt = date('Y-m-d H:i:s');
         } elseif ($this->Status !== 'Complete') {
             $this->CompletedAt = null;
+        }
+    }
+
+    protected function onAfterWrite()
+    {
+        parent::onAfterWrite();
+
+        // Send notification if task was assigned or reassigned
+        $wasAssignmentChanged = false;
+        if ($this->wasNew) {
+            // New task with initial assignment
+            $wasAssignmentChanged = true;
+        } elseif (isset($this->originalAssignedToID) && $this->originalAssignedToID !== $this->AssignedToID) {
+            // Existing task with changed assignment
+            $wasAssignmentChanged = true;
+        }
+        
+        if ($wasAssignmentChanged && $this->AssignedToID) {
+            $previousAssignee = null;
+            if (isset($this->originalAssignedToID)) {
+                $previousAssignee = Member::get()->byID($this->originalAssignedToID);
+            }
+            try {
+                NotificationService::sendTaskAssignedNotification($this, $previousAssignee);
+            } catch (\Exception $e) {
+                user_error('Failed to send task assignment notification: ' . $e->getMessage(), E_USER_WARNING);
+            }
+        }
+
+        // Send notification if status changed
+        if (isset($this->originalStatus) && $this->originalStatus !== $this->Status) {
+            try {
+                NotificationService::sendStatusChangedNotification($this, $this->originalStatus);
+            } catch (\Exception $e) {
+                user_error('Failed to send status change notification: ' . $e->getMessage(), E_USER_WARNING);
+            }
         }
     }
 
