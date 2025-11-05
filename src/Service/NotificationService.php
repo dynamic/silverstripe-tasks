@@ -179,7 +179,7 @@ class NotificationService
                 ]);
             
             $result = $email->send();
-            if ($result !== null ? (bool)$result : false) {
+            if ($result !== null ? (bool)$result : true) {
                 $sent = true;
             }
         }
@@ -195,8 +195,7 @@ class NotificationService
      */
     protected static function getTaskEditLink(Task $task): string
     {
-        return Director::absoluteURL(
-            sprintf('/admin/tasks/Dynamic-Tasks-Model-Task/EditForm/field/Dynamic-Tasks-Model-Task/item/%d/edit', $task->ID)
-        );
+        $cmsLink = $task->CMSEditLink();
+        return $cmsLink ? Director::absoluteURL($cmsLink) : '';
     }
 }

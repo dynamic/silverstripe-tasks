@@ -268,7 +268,10 @@ class Task extends DataObject
         parent::onAfterWrite();
 
         // Send notification if task was assigned or reassigned
-        if ($this->isChanged('AssignedToID') || (isset($this->wasNew) && $this->wasNew)) {
+        $wasAssignmentChanged = (isset($this->wasNew) && $this->wasNew) || 
+                                (isset($this->originalAssignedToID) && $this->originalAssignedToID != $this->AssignedToID);
+        
+        if ($wasAssignmentChanged && $this->AssignedToID) {
             $previousAssignee = null;
             if (isset($this->originalAssignedToID)) {
                 $previousAssignee = Member::get()->byID($this->originalAssignedToID);
