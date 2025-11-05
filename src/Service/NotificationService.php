@@ -93,7 +93,7 @@ class NotificationService
                 'Task' => $task,
                 'Comment' => $comment,
                 'Author' => $author,
-                'Assignee' => $assignee,
+                'Recipient' => $assignee,
                 'TaskLink' => self::getTaskEditLink($task),
             ]);
         
@@ -112,7 +112,7 @@ class NotificationService
                         'Task' => $task,
                         'Comment' => $comment,
                         'Author' => $author,
-                        'Assignee' => $creator,
+                        'Recipient' => $creator,
                         'TaskLink' => self::getTaskEditLink($task),
                     ]);
                 $creatorResult = $creatorEmail->send();

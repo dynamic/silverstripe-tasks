@@ -79,7 +79,7 @@
     </div>
     
     <div class="content">
-        <p>Hi <strong>$Assignee.FirstName</strong>,</p>
+        <p>Hi <strong>$Recipient.FirstName</strong>,</p>
         
         <p><strong>$Author.Name</strong> added a comment to a task.</p>
         
