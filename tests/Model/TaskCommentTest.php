@@ -194,19 +194,19 @@ class TaskCommentTest extends SapphireTest
         $author->Email = 'author@example.com';
         $author->write();
 
-        // Create comments with slight delays to ensure different timestamps
+        // Create comments with explicit Created timestamps to ensure different order
         $comment1 = TaskComment::create();
         $comment1->Comment = 'First comment';
         $comment1->TaskID = $task->ID;
         $comment1->AuthorID = $author->ID;
+        $comment1->Created = '2023-01-01 12:00:00';
         $comment1->write();
-
-        sleep(1);
 
         $comment2 = TaskComment::create();
         $comment2->Comment = 'Second comment';
         $comment2->TaskID = $task->ID;
         $comment2->AuthorID = $author->ID;
+        $comment2->Created = '2023-01-01 12:00:01';
         $comment2->write();
 
         $comments = $task->Comments();

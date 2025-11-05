@@ -316,6 +316,10 @@ class Task extends DataObject
         }
     }
 
+    /**
+     * Delete related comments when task is deleted
+     * Note: cascade_deletes config may not work consistently across all SilverStripe versions
+     */
     protected function onBeforeDelete()
     {
         parent::onBeforeDelete();
