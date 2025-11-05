@@ -74,6 +74,10 @@ class Task extends DataObject
         'Comments' => TaskComment::class,
     ];
 
+    private static $cascade_deletes = [
+        'Comments',
+    ];
+
     private static $summary_fields = [
         'Title' => 'Title',
         'StatusNice' => 'Status',
@@ -92,6 +96,19 @@ class Task extends DataObject
     ];
 
     private static $default_sort = 'Created DESC';
+
+    public function populateDefaults()
+    {
+        parent::populateDefaults();
+
+        if (!$this->Status) {
+            $this->Status = 'NotStarted';
+        }
+
+        if (!$this->Priority) {
+            $this->Priority = 'Normal';
+        }
+    }
 
     /**
      * Get polymorphic related object
@@ -299,6 +316,16 @@ class Task extends DataObject
         }
     }
 
+    protected function onBeforeDelete()
+    {
+        parent::onBeforeDelete();
+
+        // Delete all related comments
+        foreach ($this->Comments() as $comment) {
+            $comment->delete();
+        }
+    }
+
     public function canView($member = null)
     {
         return parent::canView($member);
@@ -317,5 +344,16 @@ class Task extends DataObject
     public function canCreate($member = null, $context = [])
     {
         return parent::canCreate($member, $context);
+    }
+
+    public function validate(): \SilverStripe\Core\Validation\ValidationResult
+    {
+        $result = parent::validate();
+
+        if (empty($this->Title)) {
+            $result->addError('Title is required');
+        }
+
+        return $result;
     }
 }

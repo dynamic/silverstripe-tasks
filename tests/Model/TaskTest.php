@@ -103,7 +103,7 @@ class TaskTest extends SapphireTest
         $member = Member::create();
         $member->FirstName = 'John';
         $member->Surname = 'Doe';
-        $member->Email = 'john.doe@example.com';
+        $member->Email = 'john.doe.test@example.com';
         $member->write();
 
         $task = Task::create();
@@ -123,7 +123,7 @@ class TaskTest extends SapphireTest
         $creator = Member::create();
         $creator->FirstName = 'Jane';
         $creator->Surname = 'Smith';
-        $creator->Email = 'jane.smith@example.com';
+        $creator->Email = 'jane.smith.test@example.com';
         $creator->write();
 
         $task = Task::create();
