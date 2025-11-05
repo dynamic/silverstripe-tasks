@@ -7,6 +7,7 @@ use Dynamic\Tasks\Model\TaskComment;
 use SilverStripe\Control\Director;
 use SilverStripe\Control\Email\Email;
 use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 
 /**
  * Service for sending task-related email notifications
@@ -35,7 +36,7 @@ class NotificationService
         }
         
         // Don't send if the person who created/updated the task is the assignee
-        $currentUser = Member::currentUser();
+        $currentUser = Security::getCurrentUser();
         if ($currentUser && $currentUser->ID === $assignee->ID) {
             return false;
         }
@@ -135,7 +136,7 @@ class NotificationService
         }
         
         $recipients = [];
-        $currentUser = Member::currentUser();
+        $currentUser = Security::getCurrentUser();
         
         // Notify assignee (if not the one making the change)
         $assignee = $task->AssignedTo();
