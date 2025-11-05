@@ -26,6 +26,12 @@ class MemberTaskExtension extends Extension
     private const TASK_SORT_ORDER = 'DueDate ASC, Priority DESC';
 
     /**
+     * Task status constants to match Task model enum values
+     */
+    private const STATUS_COMPLETE = 'Complete';
+    private const STATUS_CANCELLED = 'Cancelled';
+
+    /**
      * Get all tasks assigned to this member
      */
     public function AssignedTasks(): DataList
@@ -35,11 +41,12 @@ class MemberTaskExtension extends Extension
 
     /**
      * Get count of open tasks assigned to this member
+     * Excludes tasks with Complete or Cancelled status
      */
     public function getOpenTaskCount(): int
     {
         return $this->AssignedTasks()
-            ->exclude('Status', ['Complete', 'Cancelled'])
+            ->exclude('Status', [self::STATUS_COMPLETE, self::STATUS_CANCELLED])
             ->count();
     }
 
