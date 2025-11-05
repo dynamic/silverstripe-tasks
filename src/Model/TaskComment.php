@@ -25,6 +25,11 @@ class TaskComment extends DataObject
 
     private static $plural_name = 'Comments';
 
+    /**
+     * Track if this is a new comment for notification logic
+     */
+    protected $wasNew = false;
+
     private static $db = [
         'Comment' => 'Text',
     ];
@@ -71,6 +76,9 @@ class TaskComment extends DataObject
     {
         parent::onBeforeWrite();
 
+        // Track if this is a new comment
+        $this->wasNew = !$this->isInDB();
+
         // Set Author on first write
         if (!$this->exists() && !$this->AuthorID) {
             $currentUser = Security::getCurrentUser();
@@ -84,8 +92,8 @@ class TaskComment extends DataObject
     {
         parent::onAfterWrite();
 
-        // Send notification when new comment is created
-        if (!$this->isChanged('Comment', DataObject::CHANGE_VALUE)) {
+        // Send notification only when new comment is created (not on edits)
+        if (isset($this->wasNew) && $this->wasNew) {
             NotificationService::sendCommentAddedNotification($this);
         }
     }
