@@ -53,8 +53,8 @@ class NotificationService
                 'Task' => $task,
                 'Assignee' => $assignee,
                 'AssignedBy' => $currentUser,
-            'TaskLink' => self::getTaskEditLink($task),
-        ]);
+                'TaskLink' => self::getTaskEditLink($task),
+            ]);
         
         $result = $email->send();
         return $result !== null ? (bool)$result : true;

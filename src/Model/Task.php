@@ -46,6 +46,11 @@ class Task extends DataObject
      */
     protected $originalStatus;
 
+    /**
+     * Track if this is a new record for notification logic
+     */
+    protected $wasNew = false;
+
     private static $plural_name = 'Tasks';
 
     private static $db = [
@@ -229,6 +234,9 @@ class Task extends DataObject
     {
         parent::onBeforeWrite();
 
+        // Track if this is a new record
+        $this->wasNew = !$this->isInDB();
+
         // Capture original values for change detection
         if ($this->exists() && $this->isChanged('AssignedToID')) {
             $original = $this->getChangedFields(false, DataObject::CHANGE_VALUE);
@@ -260,7 +268,7 @@ class Task extends DataObject
         parent::onAfterWrite();
 
         // Send notification if task was assigned or reassigned
-        if ($this->isChanged('AssignedToID') || !$this->exists()) {
+        if ($this->isChanged('AssignedToID') || (isset($this->wasNew) && $this->wasNew)) {
             $previousAssignee = null;
             if (isset($this->originalAssignedToID)) {
                 $previousAssignee = Member::get()->byID($this->originalAssignedToID);
