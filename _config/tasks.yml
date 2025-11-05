@@ -1,0 +1,7 @@
+---
+Name: dynamic-tasks
+---
+# Member Task Extension - shows assigned tasks in Member CMS profile
+SilverStripe\Security\Member:
+  extensions:
+    - Dynamic\Tasks\Extension\MemberTaskExtension
