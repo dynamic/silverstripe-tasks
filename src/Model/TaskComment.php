@@ -93,7 +93,7 @@ class TaskComment extends DataObject
         parent::onAfterWrite();
 
         // Send notification only when new comment is created (not on edits)
-        if (isset($this->wasNew) && $this->wasNew) {
+        if ($this->wasNew) {
             try {
                 NotificationService::sendCommentAddedNotification($this);
             } catch (\Exception $e) {
