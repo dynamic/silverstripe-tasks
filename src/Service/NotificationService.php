@@ -53,10 +53,11 @@ class NotificationService
                 'Task' => $task,
                 'Assignee' => $assignee,
                 'AssignedBy' => $currentUser,
-                'TaskLink' => self::getTaskEditLink($task),
-            ]);
+            'TaskLink' => self::getTaskEditLink($task),
+        ]);
         
-        return $email->send();
+        $result = $email->send();
+        return $result !== null ? (bool)$result : true;
     }
     
     /**
@@ -118,7 +119,8 @@ class NotificationService
             }
         }
         
-        return $email->send();
+        $result = $email->send();
+        return $result !== null ? (bool)$result : true;
     }
     
     /**
@@ -176,7 +178,8 @@ class NotificationService
                     'TaskLink' => self::getTaskEditLink($task),
                 ]);
             
-            if ($email->send()) {
+            $result = $email->send();
+            if ($result !== null ? (bool)$result : false) {
                 $sent = true;
             }
         }

@@ -94,7 +94,12 @@ class TaskComment extends DataObject
 
         // Send notification only when new comment is created (not on edits)
         if (isset($this->wasNew) && $this->wasNew) {
-            NotificationService::sendCommentAddedNotification($this);
+            try {
+                NotificationService::sendCommentAddedNotification($this);
+            } catch (\Exception $e) {
+                // Log error but don't fail the save
+                user_error('Failed to send comment notification: ' . $e->getMessage(), E_USER_WARNING);
+            }
         }
     }
 

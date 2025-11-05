@@ -231,10 +231,12 @@ class Task extends DataObject
 
         // Capture original values for change detection
         if ($this->exists() && $this->isChanged('AssignedToID')) {
-            $this->originalAssignedToID = $this->getField('AssignedToID');
+            $original = $this->getChangedFields(false, DataObject::CHANGE_VALUE);
+            $this->originalAssignedToID = $original['AssignedToID']['before'] ?? null;
         }
         if ($this->exists() && $this->isChanged('Status')) {
-            $this->originalStatus = $this->getField('Status');
+            $original = $this->getChangedFields(false, DataObject::CHANGE_VALUE);
+            $this->originalStatus = $original['Status']['before'] ?? null;
         }
 
         // Set CreatedBy on first write
@@ -263,12 +265,20 @@ class Task extends DataObject
             if (isset($this->originalAssignedToID)) {
                 $previousAssignee = Member::get()->byID($this->originalAssignedToID);
             }
-            NotificationService::sendTaskAssignedNotification($this, $previousAssignee);
+            try {
+                NotificationService::sendTaskAssignedNotification($this, $previousAssignee);
+            } catch (\Exception $e) {
+                user_error('Failed to send task assignment notification: ' . $e->getMessage(), E_USER_WARNING);
+            }
         }
 
         // Send notification if status changed
         if (isset($this->originalStatus) && $this->originalStatus !== $this->Status) {
-            NotificationService::sendStatusChangedNotification($this, $this->originalStatus);
+            try {
+                NotificationService::sendStatusChangedNotification($this, $this->originalStatus);
+            } catch (\Exception $e) {
+                user_error('Failed to send status change notification: ' . $e->getMessage(), E_USER_WARNING);
+            }
         }
     }
 
