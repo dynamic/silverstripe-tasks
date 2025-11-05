@@ -7,7 +7,11 @@
 
     <!-- base rules are PSR-12 -->
     <rule ref="PSR12" >
-        <!-- You may need to use this exclusion if you override some core methods -->
-        <!--<exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />-->
+        <!-- SilverStripe ORM requires certain method names for relationships -->
+        <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
+        <!-- SilverStripe GridField pattern requires nested class and underscore naming -->
+        <exclude name="PSR1.Classes.ClassDeclaration.MultipleClasses" />
+        <exclude name="Squiz.Classes.ValidClassName.NotCamelCaps" />
+        <exclude name="Squiz.Classes.ValidClassName.NotPascalCase" />
     </rule>
 </ruleset>
